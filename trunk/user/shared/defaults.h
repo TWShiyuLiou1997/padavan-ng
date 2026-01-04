@@ -18,6 +18,8 @@
 #ifndef _defaults_h_
 #define _defaults_h_
 
+#include <ralink_board.h>
+
 #define SYS_SHELL		"/bin/sh"
 #define SYS_EXEC_PATH		"/usr/sbin:/usr/bin:/sbin:/bin"
 #define SYS_EXEC_PATH_OPT	"/opt/sbin:/opt/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -28,27 +30,27 @@
 #define SYS_USER_NOBODY		"nobody"
 #define SYS_GROUP_NOGROUP	"nogroup"
 
-#define DEF_LAN_ADDR		"192.168.1.1"
-#define DEF_LAN_DHCP_BEG	"192.168.1.2"
-#define DEF_LAN_DHCP_END	"192.168.1.244"
+#define DEF_LAN_ADDR		"192.168.0.1"
+#define DEF_LAN_DHCP_BEG	"192.168.0.2"
+#define DEF_LAN_DHCP_END	"192.168.0.254"
 #define DEF_LAN_MASK		"255.255.255.0"
 
-#define DEF_WLAN_2G_CC		"UA"
-#define DEF_WLAN_5G_CC		"UA"
-#define DEF_WLAN_2G_SSID	"Padavan_2.4GHz"
-#define DEF_WLAN_5G_SSID	"Padavan_5GHz"
-#define DEF_WLAN_2G_GSSID	"Padavan_GUEST_2.4GHz"
-#define DEF_WLAN_5G_GSSID	"Padavan_GUEST_5GHz"
+#define DEF_WLAN_2G_CC		"US"
+#define DEF_WLAN_5G_CC		"US"
+#define DEF_WLAN_2G_SSID	BOARD_PID "_%s"
+#define DEF_WLAN_5G_SSID	BOARD_PID "_5G_%s"
+#define DEF_WLAN_2G_GSSID	BOARD_PID "_GUEST_%s"
+#define DEF_WLAN_5G_GSSID	BOARD_PID "_GUEST_5G_%s"
 #define DEF_WLAN_2G_PSK		"1234567890"
 #define DEF_WLAN_5G_PSK		"1234567890"
 
 #define DEF_ROOT_PASSWORD	"admin"
 #define DEF_SMB_WORKGROUP	"WORKGROUP"
-#define DEF_TIMEZONE		"EET-2EETDST"
-#define DEF_NTP_SERVER0		"pool.ntp.org"
+#define DEF_TIMEZONE		"CST-8"
+#define DEF_NTP_SERVER0		"tick.stdtime.gov.tw"
 #define DEF_NTP_SERVER1		"time.cloudflare.com"
 #define DEF_NTP_SERVER2		"time.google.com"
-#define DEF_NTP_SERVER3		"time.in.ua"
+#define DEF_NTP_SERVER3		"tw.pool.ntp.org"
 #ifdef SUPPORT_OPENSSL_EC
 #define DEF_HTTPS_CIPH_LIST	"ECDH+CHACHA20:ECDH+AESGCM:DH+AESGCM:DH+AES256:DH+AES:DH+3DES:RSA+AES:RSA+3DES:!ADH:!MD5:!DSS"
 #else
