@@ -38,7 +38,7 @@ ifeq ($(CONFIG_FIRMWARE_INCLUDE_LANG_BR),y)
 	cp dict/BR.dict $(ROMFS_DIR)/www
 endif
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_LANG_CN),y)
-	echo "LANG_CN=简体中文" >> $(ROMFS_DIR)/www/EN.header
+	echo "LANG_CN=繁體中文" >> $(ROMFS_DIR)/www/EN.header
 	cp dict/CN.dict $(ROMFS_DIR)/www
 endif
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_LANG_CZ),y)
