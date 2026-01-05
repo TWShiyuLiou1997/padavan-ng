@@ -155,6 +155,12 @@ $(DYNAMIC): $(OBJS:.o=.so)
 
 romfs:
 	$(ROMFSINST) /bin/iwpriv
+	$(ROMFSINST) /bin/iwconfig
+	$(ROMFSINST) /bin/iwlist
+	$(ROMFSINST) /bin/iwspy
+	$(ROMFSINST) /bin/iwgetid
+	$(ROMFSINST) /bin/iwevent
+	$(ROMFSINST) /bin/ifrename
 ifndef BUILD_STATIC
 	$(ROMFSINST) -S /lib/$(DYNAMIC)
 	$(ROMFSINST) -s $(DYNAMIC) /lib/libiw.so
