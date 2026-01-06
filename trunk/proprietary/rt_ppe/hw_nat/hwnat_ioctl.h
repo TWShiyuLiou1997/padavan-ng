@@ -113,7 +113,7 @@ struct hwnat_tuple {
 
 	unsigned char	ipv6_flowlabel;
 	enum hwnat_status result;
-};
+} __attribute__ ((packed));
 
 struct hwnat_args {
 	unsigned int debug:3;
@@ -122,7 +122,7 @@ struct hwnat_args {
 	unsigned int entry_num:16;
 	unsigned int num_of_entries:16;
 	struct hwnat_tuple entries[0];
-} __packed;
+} __attribute__ ((packed));
 
 #if !defined (CONFIG_HNAT_V2)
 /*hnat qos*/
