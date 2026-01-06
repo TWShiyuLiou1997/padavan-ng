@@ -75,6 +75,31 @@
 #include <net/flow_dissector.h>
 #endif
 #include "cobalt_compat.h"
+/* =================== FIX FOR KERNEL 3.4 (必加) =================== */
+
+/* 1. 3.4 內核沒有 skb_try_make_writable，強制用 skb_make_writable 代替 */
+#ifndef skb_try_make_writable
+#define skb_try_make_writable(skb, len) skb_make_writable(skb, len)
+#endif
+
+/* 2. 3.4 內核沒有 TCPOPT_EXP，手動定義它 */
+#ifndef TCPOPT_EXP
+#define TCPOPT_EXP 254
+#endif
+
+/* 3. 3.4 內核的 watchdog 只有 2 個參數，強制用舊版函數 */
+#ifndef qdisc_watchdog_schedule_ns
+#define qdisc_watchdog_schedule_ns(wd, expires) qdisc_watchdog_schedule(wd, expires)
+#endif
+
+/* 4. 3.4 內核沒有 NLA_S32，強制用 NLA_U32 代替並轉型 */
+#ifndef NLA_S32
+#define NLA_S32 NLA_U32
+#define nla_get_s32(attr) ((s32)nla_get_u32(attr))
+#define nla_put_s32(skb, attr, val) nla_put_u32(skb, attr, (u32)val)
+#endif
+
+/* ================================================================= */
 
 #if IS_REACHABLE(CONFIG_NF_CONNTRACK)
 #include <net/netfilter/nf_conntrack_core.h>
@@ -671,7 +696,10 @@ static void cake_update_flowkeys(struct flow_keys *keys,
 #endif
 			return;
 
-#if KERNEL_VERSION(4, 3, 0) > LINUX_VERSION_CODE
+/* 修改開始：針對 3.4 內核移除 Zone 參數 */
+#if KERNEL_VERSION(3, 17, 0) > LINUX_VERSION_CODE
+		hash = nf_conntrack_find_get(dev_net(skb->dev), &srctuple);
+#elif KERNEL_VERSION(4, 3, 0) > LINUX_VERSION_CODE
 		hash = nf_conntrack_find_get(dev_net(skb->dev),
 					     NF_CT_DEFAULT_ZONE,
 					     &srctuple);
@@ -680,6 +708,7 @@ static void cake_update_flowkeys(struct flow_keys *keys,
 					     &nf_ct_zone_dflt,
 					     &srctuple);
 #endif
+/* 修改結束 */
 		if (!hash)
 			return;
 
