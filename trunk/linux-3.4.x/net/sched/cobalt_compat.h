@@ -1,113 +1,99 @@
 #ifndef __NET_SCHED_COBALT_COMPAT_H
 #define __NET_SCHED_COBALT_COMPAT_H
-/* Backport some stuff if needed.
- */
+
+#include <linux/version.h>
+#include <linux/ktime.h>
+#include <linux/net_tstamp.h>
+#include <linux/skbuff.h>
+#include <net/pkt_sched.h>
+
+/* === 關鍵修復：必須放在最前面，讓後面的宏可以使用 === */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
+static inline int ktime_compare(ktime_t k1, ktime_t k2)
+{
+    if (k1.tv64 < k2.tv64) return -1;
+    if (k1.tv64 > k2.tv64) return 1;
+    return 0;
+}
+#endif
+
+/* === 關鍵修復：補上 3.4 核心缺失的 Netlink 類型 === */
+#ifndef NLA_S32
+#define NLA_S32 NLA_U32
+static inline s32 nla_get_s32(const struct nlattr *nla) { return (s32)nla_get_u32(nla); }
+static inline int nla_put_s32(struct sk_buff *skb, int attrtype, s32 value)
+{ return nla_put_u32(skb, attrtype, (u32)value); }
+#endif
+
 #if KERNEL_VERSION(3, 11, 0) > LINUX_VERSION_CODE
 #define ktime_add_ms(kt, msec) ktime_add_ns(kt, msec * NSEC_PER_MSEC)
 #endif
 
-#if KERNEL_VERSION(3, 14, 0) > LINUX_VERSION_CODE
-
-static inline u32 reciprocal_scale(u32 val, u32 ep_ro)
-{
-	return (u32)(((u64) val * ep_ro) >> 32);
-}
-
-#endif
-
-#if KERNEL_VERSION(3, 15, 0) > LINUX_VERSION_CODE
-
-static inline void kvfree(const void *addr)
-{
-	if (is_vmalloc_addr(addr))
-		vfree(addr);
-	else
-		kfree(addr);
-}
-
-#endif
+/* 已刪除 reciprocal_scale 以避免與內核衝突 */
+/* 已刪除 kvfree 以避免與內核衝突 */
 
 #if KERNEL_VERSION(3, 16, 0) > LINUX_VERSION_CODE
-#define ktime_after(cmp1, cmp2) ktime_compare(cmp1, cmp2) > 0
-#define ktime_before(cmp1, cmp2) ktime_compare(cmp1, cmp2) < 0
+#define ktime_after(cmp1, cmp2) (ktime_compare(cmp1, cmp2) > 0)
+#define ktime_before(cmp1, cmp2) (ktime_compare(cmp1, cmp2) < 0)
 #endif
 
 #if KERNEL_VERSION(3, 17, 0) > LINUX_VERSION_CODE
-
 #define ktime_get_ns() ktime_to_ns(ktime_get())
-
 #endif
 
-/* 3.18 > 4.7 use 3 arg, everything else uses 2 arg versions
- * of qdisc_watchdog_schedule_ns
- */
+/* 3.18 > 4.7 use 3 arg, everything else uses 2 arg versions */
 #if ((KERNEL_VERSION(3, 18, 0) <= LINUX_VERSION_CODE) && (KERNEL_VERSION(4, 8, 0) > LINUX_VERSION_CODE))
-#define qdisc_watchdog_schedule_ns(_a, _b) qdisc_watchdog_schedule_ns(_a, _b, true);
+#undef qdisc_watchdog_schedule_ns
+#define qdisc_watchdog_schedule_ns(_a, _b) qdisc_watchdog_schedule_ns(_a, _b, true)
 #endif
 
 #if KERNEL_VERSION(3, 18, 0) > LINUX_VERSION_CODE
-static inline void qdisc_qstats_backlog_dec(struct Qdisc *sch,
-					    const struct sk_buff *skb)
+static inline void qdisc_qstats_backlog_dec(struct Qdisc *sch, const struct sk_buff *skb)
 {
-	sch->qstats.backlog -= qdisc_pkt_len(skb);
+    sch->qstats.backlog -= qdisc_pkt_len(skb);
 }
-
-static inline void qdisc_qstats_backlog_inc(struct Qdisc *sch,
-					    const struct sk_buff *skb)
+static inline void qdisc_qstats_backlog_inc(struct Qdisc *sch, const struct sk_buff *skb)
 {
-	sch->qstats.backlog += qdisc_pkt_len(skb);
+    sch->qstats.backlog += qdisc_pkt_len(skb);
 }
-
 static inline void __qdisc_qstats_drop(struct Qdisc *sch, int count)
 {
-	sch->qstats.drops += count;
+    sch->qstats.drops += count;
 }
-
 static inline void qdisc_qstats_drop(struct Qdisc *sch)
 {
-	sch->qstats.drops++;
+    sch->qstats.drops++;
 }
-
 #define gnet_stats_copy_queue(_a, _b, _c, _d) gnet_stats_copy_queue(_a, _c)
-
 #endif
 
 #if KERNEL_VERSION(4, 1, 0) > LINUX_VERSION_CODE
-#define TCPOPT_FASTOPEN	34
+#define TCPOPT_FASTOPEN 34
 #endif
 
 #if KERNEL_VERSION(4, 3, 0) > LINUX_VERSION_CODE
-#define tcf_classify(_a, _b, _c, _d) tc_classify(_a, _b, _c);
+#define tcf_classify(_a, _b, _c, _d) tc_classify(_a, _b, _c)
 #elif KERNEL_VERSION(4, 13, 0) > LINUX_VERSION_CODE
-#define tcf_classify(_a, _b, _c, _d) tc_classify(_a, _b, _c, _d);
+#define tcf_classify(_a, _b, _c, _d) tc_classify(_a, _b, _c, _d)
 #endif
 
 #if !defined(IS_REACHABLE)
 #define IS_REACHABLE(option) (config_enabled(option) || \
-		(config_enabled(option##_MODULE) && config_enabled(MODULE)))
+        (config_enabled(option##_MODULE) && config_enabled(MODULE)))
 #endif
 
 #if ((KERNEL_VERSION(4, 4, 114) > LINUX_VERSION_CODE) && \
      ((KERNEL_VERSION(4,  1, 50) > LINUX_VERSION_CODE) || (KERNEL_VERSION(4,  2, 0) <= LINUX_VERSION_CODE)))
 static inline unsigned int __tcp_hdrlen(const struct tcphdr *th)
 {
-	return th->doff * 4;
+    return th->doff * 4;
 }
 #endif
-/*
-#if KERNEL_VERSION(4, 6, 0) > LINUX_VERSION_CODE
-static inline int skb_try_make_writable(struct sk_buff *skb,
-					unsigned int write_len)
-{
-	return skb_cloned(skb) && !skb_clone_writable(skb, write_len) &&
-	       pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
-}
-#endif
-*/
+
 #if KERNEL_VERSION(4, 11, 0) > LINUX_VERSION_CODE
 static inline int skb_mac_offset(const struct sk_buff *skb)
 {
-	return skb_mac_header(skb) - skb->data;
+    return skb_mac_header(skb) - skb->data;
 }
 #endif
 
@@ -119,35 +105,19 @@ static inline int skb_mac_offset(const struct sk_buff *skb)
 #define cake_maybe_lock(sch)
 #define cake_maybe_unlock(sch)
 #else
-#define cake_maybe_lock(sch) sch_tree_lock(sch);
-#define cake_maybe_unlock(sch) sch_tree_unlock(sch);
+#define cake_maybe_lock(sch) sch_tree_lock(sch)
+#define cake_maybe_unlock(sch) sch_tree_unlock(sch)
 #endif
-
 
 #if KERNEL_VERSION(4, 12, 0) > LINUX_VERSION_CODE
 static void *kvzalloc(size_t sz, gfp_t flags)
 {
-	void *ptr = kzalloc(sz, flags);
-
-	if (!ptr)
-		ptr = vzalloc(sz);
-	return ptr;
+    void *ptr = kzalloc(sz, flags);
+    if (!ptr) ptr = vzalloc(sz);
+    return ptr;
 }
 #endif
 
-/* save the best till last
- * qdisc_tree_reduce_backlog appears in kernel from:
-3.16.37 onward
-not in 3.17
-3.18.37
-not in 3.19
-not in 4.0
-4.1.28 onward
-not in 4.2
-not in 4.3
-4.4.11 onward
-4.5.5 onward
- */
 #if ((KERNEL_VERSION(3,  0, 0) <= LINUX_VERSION_CODE) && (KERNEL_VERSION(3, 16, 37) > LINUX_VERSION_CODE)) || \
     ((KERNEL_VERSION(3, 18, 0) <= LINUX_VERSION_CODE) && (KERNEL_VERSION(3, 18, 37) > LINUX_VERSION_CODE)) || \
     ((KERNEL_VERSION(4,  1, 0) <= LINUX_VERSION_CODE) && (KERNEL_VERSION(4,  1, 28) > LINUX_VERSION_CODE)) || \
@@ -155,6 +125,5 @@ not in 4.3
     ((KERNEL_VERSION(4,  5, 0) <= LINUX_VERSION_CODE) && (KERNEL_VERSION(4,  5,  5) > LINUX_VERSION_CODE))
 #define qdisc_tree_reduce_backlog(_a, _b, _c) qdisc_tree_decrease_qlen(_a, _b)
 #endif
-
 
 #endif
