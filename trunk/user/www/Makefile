@@ -86,7 +86,7 @@ ifeq ($(CONFIG_FIRMWARE_INCLUDE_LANG_UK),y)
 	cp dict/UK.dict $(ROMFS_DIR)/www
 endif
 	cat $(ROMFS_DIR)/www/EN.header dict/EN.footer > $(ROMFS_DIR)/www/EN.dict
-	sed -i 's/^Web_Title=.*/Web_Title=ZVMODELVZ Wireless Router/' $(ROMFS_DIR)/www/*.dict
+	sed -i 's/^Web_Title=.*/Web_Title=ZVMODELVZ 路由器/' $(ROMFS_DIR)/www/*.dict
 	sed $(BOARD_PATTERN) -i $(ROMFS_DIR)/www/*.dict
 	sed $(COPYR_PATTERN) -i $(ROMFS_DIR)/www/*.dict
 	sed $(DWURL_PATTERN) -i $(ROMFS_DIR)/www/*.dict
