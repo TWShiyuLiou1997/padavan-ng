@@ -1,14 +1,19 @@
 #ifndef __HW_NAT_API
 #define __HW_NAT_API
 
+/* * [修正說明] 
+ * 修改為直接順序讀取 (0, 1, 2, 3)。
+ * 用於當資料在記憶體中已經是 Network Byte Order 時，避免錯誤反轉。
+ */
 #define NIPQUAD(addr) \
-	((unsigned char *)&addr)[3], \
-        ((unsigned char *)&addr)[2], \
-        ((unsigned char *)&addr)[1], \
-        ((unsigned char *)&addr)[0]
+	((unsigned char *)&addr)[0], \
+	((unsigned char *)&addr)[1], \
+	((unsigned char *)&addr)[2], \
+	((unsigned char *)&addr)[3]
+
 #define NIPHALF(addr) \
-        ((unsigned short *)&addr)[1], \
-        ((unsigned short *)&addr)[0]
+	((unsigned short *)&addr)[0], \
+	((unsigned short *)&addr)[1]
 
 int HwNatDumpEntry(unsigned int entry_num);
 int HwNatBindEntry(unsigned int entry_num);
