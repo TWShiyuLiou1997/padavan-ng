@@ -2391,6 +2391,10 @@ void PpeSetDstPort(uint32_t Ebl)
 	int i;
 
 	if (Ebl) {
+		/* ============================== */
+		/* 1. 介面捕捉階段        */
+		/* ============================== */
+		
 		DstPort[DP_RA0] = ra_dev_get_by_name("ra0");
 #if defined (HWNAT_USE_IF_MBSS)
 		DstPort[DP_RA1] = ra_dev_get_by_name("ra1");
@@ -2449,18 +2453,39 @@ void PpeSetDstPort(uint32_t Ebl)
 		if (DstPort[i]) i = DP_NIC1;
 		DstPort[i] = ra_dev_get_by_name("wwan0");	// USB WWAN interface name
 #endif
-		for (i = 0; i < MAX_IF_NUM; i++) {
-			if (DstPort[i])
-				SetDstPortIndex(DstPort[i], i);
-		}
-	} else {
+
+		/* ============================== */
+		/* 2. 註冊與回報階段        */
+		/* ============================== */
+		printk("HWNAT: ===> Start Binding Interfaces...\n");
 		for (i = 0; i < MAX_IF_NUM; i++) {
 			if (DstPort[i]) {
+				/* 核心邏輯：設定 Port Index */
+				SetDstPortIndex(DstPort[i], i);
+				
+				/* 新增邏輯：大聲說出來！直接讀取介面名稱 */
+				printk("HWNAT: Bind Interface [%s] success! (Index: %d)\n", DstPort[i]->name, i);
+			}
+		}
+		printk("HWNAT: <=== Binding Complete.\n");
+
+	} else {
+		/* ============================== */
+		/* 3. 移除與清除階段        */
+		/* ============================== */
+		printk("HWNAT: ===> Start Unbinding Interfaces (Module Cleanup)...\n");
+		for (i = 0; i < MAX_IF_NUM; i++) {
+			if (DstPort[i]) {
+				/* 新增邏輯：再見了，介面！ */
+				printk("HWNAT: Unbind Interface [%s] (Index: %d)\n", DstPort[i]->name, i);
+
+				/* 核心邏輯：清除設定並釋放資源 */
 				SetDstPortIndex(DstPort[i], 0);
 				dev_put(DstPort[i]);
 				DstPort[i] = NULL;
 			}
 		}
+		printk("HWNAT: <=== All interfaces released. Engine is IDLE.\n");
 	}
 }
 
