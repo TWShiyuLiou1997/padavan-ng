@@ -338,6 +338,7 @@ NFilter_desc=Main Linux Netfilter framework configuration.
 NFilterConfig=Netfilter Settings
 NFilterMaxConn=Maximum Connections:
 NFilterNatType=NAT Type (UDP only):
+NFilterNatLoop=NAT loopback
 NFilterALG=Application-Level Gateway (ALG)
 HardwareNAT=Hardware Offload NAT/Routing IPv4:
 WAN_SFE=Software Offload Routing IPv4/IPv6:
