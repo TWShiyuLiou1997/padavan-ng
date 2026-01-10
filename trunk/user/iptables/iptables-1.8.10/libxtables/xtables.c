@@ -804,10 +804,13 @@ xtables_find_match(const char *name, enum xtables_tryload tryload,
 		dptr = &((*dptr)->next);
 	}
 
+#if 0
+	/* 已隱藏：避免因核心模組精簡而產生的無意義警告 */
 	if (seen && !found)
 		fprintf(stderr,
 			"Warning: Extension %s is not supported, missing kernel module?\n",
 			name);
+#endif
 
 	for (ptr = xtables_matches; ptr; ptr = ptr->next) {
 		if (extension_cmp(name, ptr->name, ptr->family)) {
@@ -934,10 +937,13 @@ xtables_find_target(const char *name, enum xtables_tryload tryload)
 		dptr = &((*dptr)->next);
 	}
 
-	// if (seen && !found)
-		// fprintf(stderr,
-			// "Warning: Extension %s is not supported, missing kernel module?\n",
-			// name);
+#if 0
+	/* 已隱藏：避免因核心模組精簡而產生的無意義警告 */
+	 if (seen && !found)
+		 fprintf(stderr,
+			 "Warning: Extension %s is not supported, missing kernel module?\n",
+			 name);
+#endif
 
 	for (ptr = xtables_targets; ptr; ptr = ptr->next) {
 		if (extension_cmp(name, ptr->name, ptr->family)) {
