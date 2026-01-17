@@ -1,0 +1,25 @@
+From 0506bea1dcc8f12d94e7c32bf2fb04abb3fdd269 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Wed, 6 Nov 2024 11:47:59 +0100
+Subject: configure: Bump version for 1.8.11 release
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index a19a60c0..2d38a4d4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,5 +1,5 @@
+ 
+-AC_INIT([iptables], [1.8.10])
++AC_INIT([iptables], [1.8.11])
+ 
+ # See libtool.info "Libtool's versioning system"
+ libxtables_vcurrent=19
+-- 
+cgit v1.2.3
+

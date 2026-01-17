@@ -1,0 +1,64 @@
+From 8cb0c13b7777e72ca6f4265845dc99eff7cdf679 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Tue, 22 Jul 2025 12:43:26 +0200
+Subject: xtables-monitor: Print -X command for base chains, too
+
+Since commit 61e85e3192dea ("iptables-nft: allow removal of empty
+builtin chains"), the command may be applied to "builtin" chains as
+well, so the output is basically valid.
+
+Apart from that, since kernel commit a1050dd07168 ("netfilter:
+nf_tables: Reintroduce shortened deletion notifications") the base chain
+deletion notification does not contain NFTNL_CHAIN_PRIO (actually:
+NFTA_HOOK_PRIORITY) attribute anymore so this implicitly fixes for
+changed kernel behaviour.
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ iptables/tests/shell/testcases/nft-only/0012-xtables-monitor_0 | 8 ++++----
+ iptables/xtables-monitor.c                                     | 4 +++-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/iptables/tests/shell/testcases/nft-only/0012-xtables-monitor_0 b/iptables/tests/shell/testcases/nft-only/0012-xtables-monitor_0
+index c49b7ccd..10d9547a 100755
+--- a/iptables/tests/shell/testcases/nft-only/0012-xtables-monitor_0
++++ b/iptables/tests/shell/testcases/nft-only/0012-xtables-monitor_0
+@@ -124,16 +124,16 @@ monitorcheck ebtables -F FORWARD
+ EXP=" EVENT: arptables -t filter -D INPUT -j ACCEPT"
+ monitorcheck arptables -F INPUT
+ 
+-EXP=" EVENT: nft: DEL chain: ip filter FORWARD use 0 type filter hook forward prio 0 policy accept packets 0 bytes 0 flags 1"
++EXP=" EVENT: iptables -t filter -X FORWARD"
+ monitorcheck iptables -X FORWARD
+ 
+-EXP=" EVENT: nft: DEL chain: ip6 filter FORWARD use 0 type filter hook forward prio 0 policy accept packets 0 bytes 0 flags 1"
++EXP=" EVENT: ip6tables -t filter -X FORWARD"
+ monitorcheck ip6tables -X FORWARD
+ 
+-EXP=" EVENT: nft: DEL chain: bridge filter FORWARD use 0 type filter hook forward prio -200 policy accept packets 0 bytes 0 flags 1"
++EXP=" EVENT: ebtables -t filter -X FORWARD"
+ monitorcheck ebtables -X FORWARD
+ 
+-EXP=" EVENT: nft: DEL chain: arp filter INPUT use 0 type filter hook input prio 0 policy accept packets 0 bytes 0 flags 1"
++EXP=" EVENT: arptables -t filter -X INPUT"
+ monitorcheck arptables -X INPUT
+ 
+ exit $rc
+diff --git a/iptables/xtables-monitor.c b/iptables/xtables-monitor.c
+index 9561bd17..950aac17 100644
+--- a/iptables/xtables-monitor.c
++++ b/iptables/xtables-monitor.c
+@@ -157,7 +157,9 @@ static int chain_cb(const struct nlmsghdr *nlh, void *data)
+ 
+ 	printf(" EVENT: ");
+ 
+-	if (nftnl_chain_is_set(c, NFTNL_CHAIN_PRIO) || !family_cmd(family)) {
++	if (!family_cmd(family) ||
++	    (type == NFT_MSG_NEWCHAIN &&
++	     nftnl_chain_is_set(c, NFTNL_CHAIN_PRIO))) {
+ 		nftnl_chain_snprintf(buf, sizeof(buf),
+ 				     c, NFTNL_OUTPUT_DEFAULT, 0);
+ 		printf("nft: %s chain: %s\n",
+-- 
+cgit v1.2.3
+

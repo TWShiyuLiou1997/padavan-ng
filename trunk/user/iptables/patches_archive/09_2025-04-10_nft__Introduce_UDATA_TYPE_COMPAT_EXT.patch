@@ -1,0 +1,71 @@
+From f6f0f4f55794a5f1add6f728f80f29f12f36ecd5 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Wed, 31 Jul 2024 18:43:45 +0200
+Subject: nft: Introduce UDATA_TYPE_COMPAT_EXT
+
+This new rule udata attribute will contain extensions which have been
+converted to native nftables expressions for rule parsers to fall back
+to.
+
+While at it, export parse_udata_cb() as rule parsing code will call it
+in future.
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ iptables/nft.c | 11 +++--------
+ iptables/nft.h | 12 ++++++++++++
+ 2 files changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/iptables/nft.c b/iptables/nft.c
+index efa787b7..a17b7773 100644
+--- a/iptables/nft.c
++++ b/iptables/nft.c
+@@ -1670,14 +1670,7 @@ int add_counters(struct nftnl_rule *r, uint64_t packets, uint64_t bytes)
+ 	return 0;
+ }
+ 
+-enum udata_type {
+-	UDATA_TYPE_COMMENT,
+-	UDATA_TYPE_EBTABLES_POLICY,
+-	__UDATA_TYPE_MAX,
+-};
+-#define UDATA_TYPE_MAX (__UDATA_TYPE_MAX - 1)
+-
+-static int parse_udata_cb(const struct nftnl_udata *attr, void *data)
++int parse_udata_cb(const struct nftnl_udata *attr, void *data)
+ {
+ 	unsigned char *value = nftnl_udata_get(attr);
+ 	uint8_t type = nftnl_udata_type(attr);
+@@ -1691,6 +1684,8 @@ static int parse_udata_cb(const struct nftnl_udata *attr, void *data)
+ 		break;
+ 	case UDATA_TYPE_EBTABLES_POLICY:
+ 		break;
++	case UDATA_TYPE_COMPAT_EXT:
++		break;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/iptables/nft.h b/iptables/nft.h
+index 49653ece..f1a58b9e 100644
+--- a/iptables/nft.h
++++ b/iptables/nft.h
+@@ -275,4 +275,16 @@ void nft_assert_table_compatible(struct nft_handle *h,
+ int ebt_set_user_chain_policy(struct nft_handle *h, const char *table,
+ 			      const char *chain, const char *policy);
+ 
++struct nftnl_udata;
++
++enum udata_type {
++	UDATA_TYPE_COMMENT,
++	UDATA_TYPE_EBTABLES_POLICY,
++	UDATA_TYPE_COMPAT_EXT,
++	__UDATA_TYPE_MAX,
++};
++#define UDATA_TYPE_MAX (__UDATA_TYPE_MAX - 1)
++
++int parse_udata_cb(const struct nftnl_udata *attr, void *data);
++
+ #endif
+-- 
+cgit v1.2.3
+

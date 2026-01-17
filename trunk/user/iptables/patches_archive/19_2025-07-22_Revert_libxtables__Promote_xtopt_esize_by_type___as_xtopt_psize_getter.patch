@@ -1,0 +1,76 @@
+From f66687b6cb5fd0bb36107c30339aa7f4ff75e98e Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Tue, 22 Jul 2025 15:59:51 +0200
+Subject: Revert "libxtables: Promote xtopt_esize_by_type() as xtopt_psize
+ getter"
+
+This reverts commit 786b75f7c9b9feaa294da097c2e9727747162c79.
+
+The internal routine xtopt_esize_by_type() is *not* just a fancy wrapper
+around direct xtop_psize array access, as clearly indicated by the
+comment right above it: It will return the single field size for
+range-value types (XTTYPE_UINT*RC).
+
+Using it in xtables_option_metavalidate() leads to spurious "memory
+block of wrong size" complaints.
+
+Fixes: 786b75f7c9b9f ("libxtables: Promote xtopt_esize_by_type() as xtopt_psize getter")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ libxtables/xtoptions.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
+
+diff --git a/libxtables/xtoptions.c b/libxtables/xtoptions.c
+index ecaea4ec..64d6599a 100644
+--- a/libxtables/xtoptions.c
++++ b/libxtables/xtoptions.c
+@@ -145,11 +145,8 @@ static size_t xtopt_esize_by_type(enum xt_option_type type)
+ 	case XTTYPE_UINT64RC:
+ 		return xtopt_psize[XTTYPE_UINT64];
+ 	default:
+-		break;
+-	}
+-	if (type < ARRAY_SIZE(xtopt_psize))
+ 		return xtopt_psize[type];
+-	return 0;
++	}
+ }
+ 
+ static uint64_t htonll(uint64_t val)
+@@ -889,8 +886,6 @@ void xtables_option_parse(struct xt_option_call *cb)
+ void xtables_option_metavalidate(const char *name,
+ 				 const struct xt_option_entry *entry)
+ {
+-	size_t psize;
+-
+ 	for (; entry->name != NULL; ++entry) {
+ 		if (entry->id >= CHAR_BIT * sizeof(unsigned int) ||
+ 		    entry->id >= XT_OPTION_OFFSET_SCALE)
+@@ -905,18 +900,19 @@ void xtables_option_metavalidate(const char *name,
+ 					"Oversight?", name, entry->name);
+ 			continue;
+ 		}
+-
+-		psize = xtopt_esize_by_type(entry->type);
+-		if (!psize)
++		if (entry->type >= ARRAY_SIZE(xtopt_psize) ||
++		    xtopt_psize[entry->type] == 0)
+ 			xt_params->exit_err(OTHER_PROBLEM,
+ 				"%s: entry type of option \"--%s\" cannot be "
+ 				"combined with XTOPT_PUT\n",
+ 				name, entry->name);
+-		else if (psize != -1 && psize != entry->size)
++		if (xtopt_psize[entry->type] != -1 &&
++		    xtopt_psize[entry->type] != entry->size)
+ 			xt_params->exit_err(OTHER_PROBLEM,
+ 				"%s: option \"--%s\" points to a memory block "
+ 				"of wrong size (expected %zu, got %zu)\n",
+-				name, entry->name, psize, entry->size);
++				name, entry->name,
++				xtopt_psize[entry->type], entry->size);
+ 	}
+ }
+ 
+-- 
+cgit v1.2.3
+

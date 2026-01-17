@@ -1,0 +1,73 @@
+From d33c6ad308cf7b9f627aeed48a5163c0374b5035 Mon Sep 17 00:00:00 2001
+From: Miao Wang <shankerwangmiao@gmail.com>
+Date: Thu, 17 Jul 2025 16:27:37 +0800
+Subject: extensions: libebt_redirect: prevent translation
+
+The redirect target in ebtables do two things: 1. set skb->pkt_type to
+PACKET_HOST, and 2. set the destination mac address to the address of
+the receiving bridge device (when not used in BROUTING chain), or the
+receiving physical device (otherwise). However, the later cannot be
+implemented in nftables not given the translated mac address. So it is
+not appropriate to give a specious translation.
+
+This patch disables the translation to prevent possible misunderstanding.
+
+Fixes: 24ce7465056ae ("ebtables-compat: add redirect match extension")
+Signed-off-by: Miao Wang <shankerwangmiao@gmail.com>
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ extensions/libebt_redirect.c      | 19 +------------------
+ extensions/libebt_redirect.txlate |  8 --------
+ 2 files changed, 1 insertion(+), 26 deletions(-)
+ delete mode 100644 extensions/libebt_redirect.txlate
+
+diff --git a/extensions/libebt_redirect.c b/extensions/libebt_redirect.c
+index a44dbaec..12d87f93 100644
+--- a/extensions/libebt_redirect.c
++++ b/extensions/libebt_redirect.c
+@@ -60,27 +60,10 @@ static void brredir_print(const void *ip, const struct xt_entry_target *target,
+ 	printf("--redirect-target %s", ebt_target_name(redirectinfo->target));
+ }
+ 
+-static const char* brredir_verdict(int verdict)
+-{
+-	switch (verdict) {
+-	case EBT_ACCEPT: return "accept";
+-	case EBT_DROP: return "drop";
+-	case EBT_CONTINUE: return "continue";
+-	case EBT_RETURN: return "return";
+-	}
+-
+-	return "";
+-}
+-
+ static int brredir_xlate(struct xt_xlate *xl,
+ 			 const struct xt_xlate_tg_params *params)
+ {
+-	const struct ebt_redirect_info *red = (const void*)params->target->data;
+-
+-	xt_xlate_add(xl, "meta pkttype set host");
+-	if (red->target != EBT_CONTINUE)
+-		xt_xlate_add(xl, " %s ", brredir_verdict(red->target));
+-	return 1;
++	return 0;
+ }
+ 
+ static struct xtables_target brredirect_target = {
+diff --git a/extensions/libebt_redirect.txlate b/extensions/libebt_redirect.txlate
+deleted file mode 100644
+index d073ec77..00000000
+--- a/extensions/libebt_redirect.txlate
++++ /dev/null
+@@ -1,8 +0,0 @@
+-ebtables-translate -t nat -A PREROUTING -d de:ad:00:00:be:ef -j redirect
+-nft 'add rule bridge nat PREROUTING ether daddr de:ad:00:00:be:ef counter meta pkttype set host accept'
+-
+-ebtables-translate -t nat -A PREROUTING -d de:ad:00:00:be:ef -j redirect --redirect-target RETURN
+-nft 'add rule bridge nat PREROUTING ether daddr de:ad:00:00:be:ef counter meta pkttype set host return'
+-
+-ebtables-translate -t nat -A PREROUTING -d de:ad:00:00:be:ef -j redirect --redirect-target CONTINUE
+-nft 'add rule bridge nat PREROUTING ether daddr de:ad:00:00:be:ef counter meta pkttype set host'
+-- 
+cgit v1.2.3
+

@@ -1,0 +1,45 @@
+From 1e6a2812971a268428b04b03520cd68cb61d76e3 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Fri, 28 Mar 2025 17:35:04 +0100
+Subject: extensions: icmp: Support info-request/-reply type names
+
+The intended side-effect here is that iptables-translate will accept
+them too. In nftables, the names are supported since basically day 1.
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ extensions/libipt_icmp.txlate | 6 ++++++
+ extensions/libxt_icmp.h       | 3 +++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/extensions/libipt_icmp.txlate b/extensions/libipt_icmp.txlate
+index e7208d8b..4315875b 100644
+--- a/extensions/libipt_icmp.txlate
++++ b/extensions/libipt_icmp.txlate
+@@ -9,3 +9,9 @@ nft 'add rule ip filter INPUT icmp type != destination-unreachable counter accep
+ 
+ iptables-translate -t filter -A INPUT -m icmp --icmp-type any -j ACCEPT
+ nft 'add rule ip filter INPUT ip protocol icmp counter accept'
++
++iptables-translate -t filter -A INPUT -m icmp --icmp-type info-request -j ACCEPT
++nft 'add rule ip filter INPUT icmp type info-request counter accept'
++
++iptables-translate -t filter -A INPUT -m icmp --icmp-type 16 -j ACCEPT
++nft 'add rule ip filter INPUT icmp type info-reply counter accept'
+diff --git a/extensions/libxt_icmp.h b/extensions/libxt_icmp.h
+index 7a45b4bd..c44aa4b1 100644
+--- a/extensions/libxt_icmp.h
++++ b/extensions/libxt_icmp.h
+@@ -52,6 +52,9 @@ static const struct xt_icmp_names {
+ 
+ 	{ "timestamp-reply", 14, 0, 0xFF },
+ 
++	{ "info-request", 15, 0, 0xFF },
++	{ "info-reply", 16, 0, 0xFF },
++
+ 	{ "address-mask-request", 17, 0, 0xFF },
+ 
+ 	{ "address-mask-reply", 18, 0, 0xFF }
+-- 
+cgit v1.2.3
+

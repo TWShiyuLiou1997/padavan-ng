@@ -1,0 +1,72 @@
+From e6e232d0ae252b0b86278455b18d9475b95db8f0 Mon Sep 17 00:00:00 2001
+From: Jeremy Sowden <jeremy@azazel.net>
+Date: Fri, 8 Nov 2024 17:34:43 +0000
+Subject: ip[6]tables-translate: fix test failures when WESP is defined
+
+Protocol number 141 is assigned to a real protocol: Wrapped Encapsulating
+Security Payload.  This is listed in Debian's /etc/protocols, which leads to
+test failures:
+
+  ./extensions/generic.txlate: Fail
+  src: iptables-translate -A FORWARD -p 141
+  exp: nft 'add rule ip filter FORWARD ip protocol 141 counter'
+  res: nft 'add rule ip filter FORWARD ip protocol wesp counter'
+
+  ./extensions/generic.txlate: Fail
+  src: ip6tables-translate -A FORWARD -p 141
+  exp: nft 'add rule ip6 filter FORWARD meta l4proto 141 counter'
+  res: nft 'add rule ip6 filter FORWARD meta l4proto wesp counter'
+
+  ./extensions/generic.txlate: Fail
+  src: iptables-translate -A FORWARD ! -p 141
+  exp: nft 'add rule ip filter FORWARD ip protocol != 141 counter'
+  res: nft 'add rule ip filter FORWARD ip protocol != wesp counter'
+
+  ./extensions/generic.txlate: Fail
+  src: ip6tables-translate -A FORWARD ! -p 141
+  exp: nft 'add rule ip6 filter FORWARD meta l4proto != 141 counter'
+  res: nft 'add rule ip6 filter FORWARD meta l4proto != wesp counter'
+
+Replace it with 253, which IANA reserves for testing and experimentation.
+
+Fixes: fcaa99ca9e3c ("xtables-translate: Leverage stored protocol names")
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ extensions/generic.txlate | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/extensions/generic.txlate b/extensions/generic.txlate
+index 9ad1266d..64bc59a8 100644
+--- a/extensions/generic.txlate
++++ b/extensions/generic.txlate
+@@ -76,17 +76,17 @@ nft 'add rule ip filter FORWARD ip protocol != sctp counter'
+ ip6tables-translate -A FORWARD ! -p 132
+ nft 'add rule ip6 filter FORWARD meta l4proto != sctp counter'
+ 
+-iptables-translate -A FORWARD -p 141
+-nft 'add rule ip filter FORWARD ip protocol 141 counter'
++iptables-translate -A FORWARD -p 253
++nft 'add rule ip filter FORWARD ip protocol 253 counter'
+ 
+-ip6tables-translate -A FORWARD -p 141
+-nft 'add rule ip6 filter FORWARD meta l4proto 141 counter'
++ip6tables-translate -A FORWARD -p 253
++nft 'add rule ip6 filter FORWARD meta l4proto 253 counter'
+ 
+-iptables-translate -A FORWARD ! -p 141
+-nft 'add rule ip filter FORWARD ip protocol != 141 counter'
++iptables-translate -A FORWARD ! -p 253
++nft 'add rule ip filter FORWARD ip protocol != 253 counter'
+ 
+-ip6tables-translate -A FORWARD ! -p 141
+-nft 'add rule ip6 filter FORWARD meta l4proto != 141 counter'
++ip6tables-translate -A FORWARD ! -p 253
++nft 'add rule ip6 filter FORWARD meta l4proto != 253 counter'
+ 
+ iptables-translate -A FORWARD -m tcp --dport 22 -p tcp
+ nft 'add rule ip filter FORWARD tcp dport 22 counter'
+-- 
+cgit v1.2.3
+

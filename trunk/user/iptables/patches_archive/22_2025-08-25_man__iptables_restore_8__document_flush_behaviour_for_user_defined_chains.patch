@@ -1,0 +1,45 @@
+From c3d5053db05f99bd72219aebeefc7fb0195ac041 Mon Sep 17 00:00:00 2001
+From: Florian Westphal <fw@strlen.de>
+Date: Mon, 25 Aug 2025 11:07:35 +0200
+Subject: man: iptables-restore.8: document flush behaviour for user-defined
+ chains
+
+There is no way we can change this after two decades.
+Add an example and document that declaring a user defined chain
+will flush its contents in --noflush mode.
+
+Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1242
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+---
+ iptables/iptables-restore.8.in | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/iptables/iptables-restore.8.in b/iptables/iptables-restore.8.in
+index df61b2a6..abf8d6de 100644
+--- a/iptables/iptables-restore.8.in
++++ b/iptables/iptables-restore.8.in
+@@ -48,6 +48,20 @@ Print a short option summary.
+ \fB\-n\fR, \fB\-\-noflush\fR
+ Don't flush the previous contents of the table. If not specified,
+ both commands flush (delete) all previous contents of the respective table.
++Note that this option will flush user-defined chains if they are declared.
++Example:
++.P
++.in +4n
++.EX
++*filter
++:FILTERS - [0:0]
++-A FILTERS ...
++.EE
++
++will flush and re-build the FILTERS chain from scratch,
++while retaining the content of all other chains in the table.
++.in
++.P
+ .TP
+ \fB\-t\fP, \fB\-\-test\fP
+ Only parse and construct the ruleset, but do not commit it.
+-- 
+cgit v1.2.3
+

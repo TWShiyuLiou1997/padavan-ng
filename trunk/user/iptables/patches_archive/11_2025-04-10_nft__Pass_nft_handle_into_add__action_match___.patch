@@ -1,0 +1,153 @@
+From 739d9bd57ad26bd52bed569264daa97b5943e08d Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Sat, 5 Oct 2024 14:07:52 +0200
+Subject: nft: Pass nft_handle into add_{action,match}()
+
+Creation of compat extensions in rule userdata will depend on a flag in
+nft_handle.
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+---
+ iptables/nft-arp.c    | 2 +-
+ iptables/nft-bridge.c | 9 +++++----
+ iptables/nft-ipv4.c   | 2 +-
+ iptables/nft-ipv6.c   | 2 +-
+ iptables/nft.c        | 9 +++++----
+ iptables/nft.h        | 6 ++++--
+ 6 files changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/iptables/nft-arp.c b/iptables/nft-arp.c
+index fa2dd558..2140a88d 100644
+--- a/iptables/nft-arp.c
++++ b/iptables/nft-arp.c
+@@ -167,7 +167,7 @@ static int nft_arp_add(struct nft_handle *h, struct nft_rule_ctx *ctx,
+ 		else if (strcmp(cs->jumpto, XTC_LABEL_RETURN) == 0)
+ 			ret = add_verdict(r, NFT_RETURN);
+ 		else
+-			ret = add_target(r, cs->target->t);
++			ret = add_target(h, r, cs->target->t);
+ 	} else if (strlen(cs->jumpto) > 0) {
+ 		/* No goto in arptables */
+ 		ret = add_jumpto(r, cs->jumpto, NFT_JUMP);
+diff --git a/iptables/nft-bridge.c b/iptables/nft-bridge.c
+index 1623acba..6a236846 100644
+--- a/iptables/nft-bridge.c
++++ b/iptables/nft-bridge.c
+@@ -88,7 +88,8 @@ static int add_meta_broute(struct nftnl_rule *r)
+ 	return 0;
+ }
+ 
+-static int _add_action(struct nftnl_rule *r, struct iptables_command_state *cs)
++static int _add_action(struct nft_handle *h, struct nftnl_rule *r,
++		       struct iptables_command_state *cs)
+ {
+ 	const char *table = nftnl_rule_get_str(r, NFTNL_RULE_TABLE);
+ 
+@@ -104,7 +105,7 @@ static int _add_action(struct nftnl_rule *r, struct iptables_command_state *cs)
+ 		}
+ 	}
+ 
+-	return add_action(r, cs, false);
++	return add_action(h, r, cs, false);
+ }
+ 
+ static int
+@@ -192,7 +193,7 @@ static int nft_bridge_add(struct nft_handle *h, struct nft_rule_ctx *ctx,
+ 			if (nft_bridge_add_match(h, fw, ctx, r, iter->u.match->m))
+ 				break;
+ 		} else {
+-			if (add_target(r, iter->u.watcher->t))
++			if (add_target(h, r, iter->u.watcher->t))
+ 				break;
+ 		}
+ 	}
+@@ -200,7 +201,7 @@ static int nft_bridge_add(struct nft_handle *h, struct nft_rule_ctx *ctx,
+ 	if (add_counters(r, cs->counters.pcnt, cs->counters.bcnt) < 0)
+ 		return -1;
+ 
+-	return _add_action(r, cs);
++	return _add_action(h, r, cs);
+ }
+ 
+ static void nft_bridge_init_cs(struct iptables_command_state *cs)
+diff --git a/iptables/nft-ipv4.c b/iptables/nft-ipv4.c
+index 0c8bd291..daf490df 100644
+--- a/iptables/nft-ipv4.c
++++ b/iptables/nft-ipv4.c
+@@ -95,7 +95,7 @@ static int nft_ipv4_add(struct nft_handle *h, struct nft_rule_ctx *ctx,
+ 	if (add_counters(r, cs->counters.pcnt, cs->counters.bcnt) < 0)
+ 		return -1;
+ 
+-	return add_action(r, cs, !!(cs->fw.ip.flags & IPT_F_GOTO));
++	return add_action(h, r, cs, !!(cs->fw.ip.flags & IPT_F_GOTO));
+ }
+ 
+ static bool nft_ipv4_is_same(const struct iptables_command_state *a,
+diff --git a/iptables/nft-ipv6.c b/iptables/nft-ipv6.c
+index 4dbb2af2..a9453bfb 100644
+--- a/iptables/nft-ipv6.c
++++ b/iptables/nft-ipv6.c
+@@ -81,7 +81,7 @@ static int nft_ipv6_add(struct nft_handle *h, struct nft_rule_ctx *ctx,
+ 	if (add_counters(r, cs->counters.pcnt, cs->counters.bcnt) < 0)
+ 		return -1;
+ 
+-	return add_action(r, cs, !!(cs->fw6.ipv6.flags & IP6T_F_GOTO));
++	return add_action(h, r, cs, !!(cs->fw6.ipv6.flags & IP6T_F_GOTO));
+ }
+ 
+ static bool nft_ipv6_is_same(const struct iptables_command_state *a,
+diff --git a/iptables/nft.c b/iptables/nft.c
+index a17b7773..a368b7d1 100644
+--- a/iptables/nft.c
++++ b/iptables/nft.c
+@@ -1539,7 +1539,8 @@ static int add_meta_nftrace(struct nftnl_rule *r)
+ 	return 0;
+ }
+ 
+-int add_target(struct nftnl_rule *r, struct xt_entry_target *t)
++int add_target(struct nft_handle *h, struct nftnl_rule *r,
++	       struct xt_entry_target *t)
+ {
+ 	struct nftnl_expr *expr;
+ 
+@@ -1589,8 +1590,8 @@ int add_verdict(struct nftnl_rule *r, int verdict)
+ 
+ static int add_log(struct nftnl_rule *r, struct iptables_command_state *cs);
+ 
+-int add_action(struct nftnl_rule *r, struct iptables_command_state *cs,
+-	       bool goto_set)
++int add_action(struct nft_handle *h, struct nftnl_rule *r,
++	       struct iptables_command_state *cs, bool goto_set)
+ {
+ 	int ret = 0;
+ 
+@@ -1606,7 +1607,7 @@ int add_action(struct nftnl_rule *r, struct iptables_command_state *cs,
+ 		else if (strcmp(cs->jumpto, "NFLOG") == 0)
+ 			ret = add_log(r, cs);
+ 		else
+-			ret = add_target(r, cs->target->t);
++			ret = add_target(h, r, cs->target->t);
+ 	} else if (strlen(cs->jumpto) > 0) {
+ 		/* Not standard, then it's a go / jump to chain */
+ 		if (goto_set)
+diff --git a/iptables/nft.h b/iptables/nft.h
+index f1a58b9e..e2004ba6 100644
+--- a/iptables/nft.h
++++ b/iptables/nft.h
+@@ -196,9 +196,11 @@ void __add_match(struct nftnl_expr *e, const struct xt_entry_match *m);
+ int add_match(struct nft_handle *h, struct nft_rule_ctx *ctx,
+ 	      struct nftnl_rule *r, struct xt_entry_match *m);
+ void __add_target(struct nftnl_expr *e, const struct xt_entry_target *t);
+-int add_target(struct nftnl_rule *r, struct xt_entry_target *t);
++int add_target(struct nft_handle *h, struct nftnl_rule *r,
++	       struct xt_entry_target *t);
+ int add_jumpto(struct nftnl_rule *r, const char *name, int verdict);
+-int add_action(struct nftnl_rule *r, struct iptables_command_state *cs, bool goto_set);
++int add_action(struct nft_handle *h, struct nftnl_rule *r,
++	       struct iptables_command_state *cs, bool goto_set);
+ char *get_comment(const void *data, uint32_t data_len);
+ 
+ enum nft_rule_print {
+-- 
+cgit v1.2.3
+
