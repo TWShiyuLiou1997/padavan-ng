@@ -1,0 +1,32 @@
+From: https://4pda.to/forum/index.php?showtopic=900745&view=findpost&p=85517846
+
+May 22, 2019, 7:31 PM
+
+Water treatments 🛀
+*****
+[offline]
+
+Group:  Regular
+Messages: 305
+Registration: 06/05/13
+Apple iPhone 16 Pro
+
+Reputation: -  65  +
+
+Good evening. If anyone needs it, I offer you an "update" to the Padavan firmware mod from Linaro. Differences from the compiled Merage firmware : Commit: 56960f9 Removed: Design settings (the default theme is active. There are no others.) Added: OpenSSH, OpenSSL, FTP, SFTP Instructions: :)
+
+# 
+I have stock
+There are two options:
+1. Tftpd64 (instructions in the merage post ).
+Archive: Attached file ArcherC2V1_tp_recovery.zip (6.84 MB)
+
+MD5 hash: D6DC9A7C7F74C22D1BA08156F0B77B20
+
+2. Flashing with a programmer (archive one line above :yes2:)
+
+
+Warning: Before updating Padavan, change the theme to the default one, otherwise you will have to clear cookies/cache, or the web interface will start constantly refreshing the page. :D
+I hope this is useful to someone. ;)
+
+Message edited by sasha0597 - 05/22/19, 08:04 PM
