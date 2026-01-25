@@ -1,0 +1,56 @@
+From: https://4pda.to/forum/index.php?showtopic=900745&st=60#entry80947240
+
+merage
+Message #62 January 6, 2019, 3:02 PM
+
+Veteran
+********
+[offline]
+
+Group:  Regular
+Messages: 1654
+Registration: 12/27/09
+Samsung Galaxy Note 8.0
+
+Reputation: -  170  +
+
+Instructions on how to configure Tftpd64 for connection during uploading
+ # 
+- Turn off the router
+
+- Connect the cable to the 4th port of the router
+
+- In the properties of the network card, set a static IP: 192.168.0.66, mask: 255.255.255.0
+
+- Start the TFTP server, select the folder with the firmware
+
+- Hold down the WPS / Reset button
+
+- Turn on the router (while holding the WPS / Reset button)
+
+- hold the WPS / Reset button until the WPS indicator lights up (~ 10-15 seconds), then you can release the button
+
+- Wait about 5 minutes
+
+- In the properties of the network card, set a dynamic IP (Obtain an IP address automatically)
+
+- Go to the address 192.168.1.1
+
+- Profit!
+
+Original source with images: https://pikabu.ru/stor…_c2_na_openwrt_5525675
+It's better to put the firmware in the Tftpd64 folder; then you don't need to specify the firmware path (place Tftpd64 in the root of the system drive).
+A ready-made Padavan firmware mod from Linaro . You don't need to do anything with it. Just put it in the Tftpd64 folder, configure its connection, and flash it.
+I installed it on an Archer c2v1 , and it works great.
+Download the firmware zip archive. ArcherC2V1_tp_recovery.zip
+2 Extract the firmware from the archive - file ArcherC2V1_tp_recovery.bin
+3 Check the MD5 checksum of the extracted firmware 2ec19d01d28c7a8c0b5fa66bd7fcc0cc
+4 Copy the bin file of the firmware to the Tftpd64 folder
+5 Configure according to the attached instructions, run Tftpd64 as administrator and flash.
+
+Attached files
+
+Attached file ArcherC2V1_tp_recovery.zip (7.41 MB)
+
+
+Edited by merage - 01/10/19, 1:14 PM
