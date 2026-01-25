@@ -1,8 +1,6 @@
 From: https://4pda.to/forum/index.php?showtopic=900745&view=findpost&p=84602850
 
-Well, after reading the posts here, I finally found a solution. If anyone else experiences a bricked router like me after flashing the firmware, where all the indicators simply blink and the router isn't detected in the system, I have
-
-a ready-made Padavan firmware mod from Linaro. You don't need to do anything with it. Just drop it into the Tftpd64 folder, configure its connection, and flash it.
+Well, after reading the posts here, I finally found a solution. If anyone else experiences a bricked router like me after flashing the firmware, where all the indicators simply blink and the router isn't detected in the system, I have a ready-made Padavan firmware mod from Linaro. You don't need to do anything with it. Just drop it into the Tftpd64 folder, configure its connection, and flash it.
 I installed it on an Archer C2V1, and it works great.
 1. Download the firmware zip archive: ArcherC2V1_tp_recovery.zip
 2. Extract the firmware from the archive - the ArcherC2V1_tp_recovery.bin file
@@ -31,7 +29,7 @@ I installed it on an Archer C2V1, and it works great.
 
 - In the properties of the network card, set a dynamic IP (Obtain an IP address automatically)
 
-- Go to the address 192.168.0.1
+- Go to the address 192.168.1.1
 ===========================================================================
 From: https://pikabu.ru/story/proshivka_tplink_archer_c2_na_openwrt_5525675
 
@@ -53,6 +51,6 @@ From: https://pikabu.ru/story/proshivka_tplink_archer_c2_na_openwrt_5525675
 
 - In the network card properties, set the dynamic IP (Obtain an IP address automatically)
 
-- Go to address 192.168.0.1
+- Go to address 192.168.1.1
 
 - Profit!
