@@ -1,0 +1,58 @@
+From: https://4pda.to/forum/index.php?showtopic=900745&view=findpost&p=84602850
+
+Well, after reading the posts here, I finally found a solution. If anyone else experiences a bricked router like me after flashing the firmware, where all the indicators simply blink and the router isn't detected in the system, I have
+
+a ready-made Padavan firmware mod from Linaro. You don't need to do anything with it. Just drop it into the Tftpd64 folder, configure its connection, and flash it.
+I installed it on an Archer C2V1, and it works great.
+1. Download the firmware zip archive: ArcherC2V1_tp_recovery.zip
+2. Extract the firmware from the archive - the ArcherC2V1_tp_recovery.bin file
+3. Copy the firmware bin file to the Tftpd64 folder
+4. Configure according to the included instructions, run Tftpd64 as administrator, and flash it.
+
+- Turn off the router
+
+- Connect the cable to the 4th port of the router
+
+- In the properties of the network card, set a static IP: 192.168.0.66, mask: 255.255.255.0
+
+- In the tftpd program, in the settings, check the Use anticipation window of and the value 1000
+
+- In the network card settings in Windows, set 10 half-duplex mode
+
+- Start the TFTP server, select the folder with the firmware 
+
+- Hold down the WPS / Reset button
+
+- Turn on the router (while holding the WPS / Reset button)
+
+- hold the WPS / Reset button until the WPS indicator lights up (~ 10-15 seconds), then you can release the button
+
+- Wait about 5 minutes
+
+- In the properties of the network card, set a dynamic IP (Obtain an IP address automatically)
+
+- Go to the address 192.168.0.1
+===========================================================================
+From: https://pikabu.ru/story/proshivka_tplink_archer_c2_na_openwrt_5525675
+
+- Turn off the router
+
+- Connect the cable to the 4th port of the router
+
+- In the network card properties, set a static IP: 192.168.0.66, mask: 255.255.255.0
+
+- Start the TFTP server, select the folder with the firmware
+
+- Press and hold the WPS/Reset button
+
+- Turn on the router (while holding the WPS/Reset button)
+
+- hold the WPS/Reset button until the WPS indicator lights up (~ 10-15 seconds), then you can release the button
+
+- We'll wait about 5 minutes.
+
+- In the network card properties, set the dynamic IP (Obtain an IP address automatically)
+
+- Go to address 192.168.0.1
+
+- Profit!
