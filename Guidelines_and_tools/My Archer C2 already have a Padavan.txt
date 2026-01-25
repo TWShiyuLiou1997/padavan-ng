@@ -1,0 +1,102 @@
+Please visit the link below. You can get the latest firmware there.
+
+https://github.com/TWShiyuLiou1997/padavan-builder-workflow/releases
+
+If you are finding a stable release with Padavan + Linux kernel 3.4.113 with a lots of improvements as described below, read out and you will find out the download link.
+
++ Common Applications Kept Enhanced (CAKE) scheduler backport
+This could be the world's first successful backport of "cake" to the Padavan with Linux kernel 3.4.113.
+
+Taiwan No.1!!!
+
+I believe this is something Dave Täht truly hoped for!!!
+
+The code Dave contributed was always free and open source. 
+He turned down numerous lucrative contracts because he always put his principles first – he valued the impact his code could make globally, not just prestige or money.
+
+In memory of Dave Täht (1965–2025), whose work on bufferbloat helped make the Internet measurably better.
+https://libreqos.io/2025/04/01/in-loving-memory-of-dave/
+PS: Dave is forever in our hearts and souls, in our routers and… in production. https://github.com/LibreQoE/LibreQoS/pull/684 We will miss you so much, Dave.
+
++ Busybox 1.37.0 with CVE-2025-60876 & CVE-2025-46394 Security Patched
+
++ Iptables 1.8.11 with Upstream commit Patched
+
++ Arptables 0.0.5
+
++ Patch MT7610E Driver (Anti-Disconnect & Fast Reconnect)
+(Anti-Disconnect: The original Beacon Timeout is 12 seconds, after Beacon Timeout patch applied, 
+it will be 60 seconds. 
+Fast Reconnect: Peer Disconnect Logic changed! Fast Reconnect Mode Enabled!)
+
++ HWNAT error fixed and improve the clarity of HWNAT Start Binding and Unbinding Interfaces workflows.
+
+Before my modifications, the displayed IP and port were completely incorrect due to a memory misalignment. 
+I also additionally fixed the IP value retrieval logic within the original MTK code, significantly improving the code's stability!
+
+HWNAT error fixed: Show All Foe Invalid Entry, Show All Foe Unbinded Entry, Show All Foe Binded Entry.
+Input Command: hw_nat -e hw_nat -f hw_nat -g will print out the correct IP and port infomation now.
+
+Improve the clarity of HWNAT Start Binding and Unbinding Interfaces workflows: For example, you will see the actions what HWNAT done in log.
+Below is the transparent process you'll see in the logs, giving you a clear understanding of what HWNAT has done.
+Logs of "Start Binding Interfaces" workflows just like:
+Jan 25 01:48:58 kernel: HWNAT: ===> Start Binding Interfaces...
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [ra0] success! (Index: 11)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [ra1] success! (Index: 12)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wds0] success! (Index: 27)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wds1] success! (Index: 28)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wds2] success! (Index: 29)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wds3] success! (Index: 30)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [apcli0] success! (Index: 31)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [rai0] success! (Index: 33)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [rai1] success! (Index: 34)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wdsi0] success! (Index: 49)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wdsi1] success! (Index: 50)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wdsi2] success! (Index: 51)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [wdsi3] success! (Index: 52)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [apclii0] success! (Index: 53)
+Jan 25 01:48:58 kernel: HWNAT: Bind Interface [eth2] success! (Index: 60)
+Jan 25 01:48:58 kernel: HWNAT: <=== Binding Complete.
+
+Logs of "Start Unbinding Interfaces" workflows just like:
+Jan 25 21:08:06 kernel: HWNAT: ===> Start Unbinding Interfaces (Module Cleanup)...
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [ra0] (Index: 11)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [ra1] (Index: 12)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wds0] (Index: 27)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wds1] (Index: 28)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wds2] (Index: 29)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wds3] (Index: 30)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [apcli0] (Index: 31)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [rai0] (Index: 33)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [rai1] (Index: 34)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wdsi0] (Index: 49)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wdsi1] (Index: 50)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wdsi2] (Index: 51)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [wdsi3] (Index: 52)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [apclii0] (Index: 53)
+Jan 25 21:08:06 kernel: HWNAT: Unbind Interface [eth2] (Index: 60)
+Jan 25 21:08:06 kernel: HWNAT: <=== All interfaces released. Engine is IDLE.
+
+Download link: https://github.com/TWShiyuLiou1997/padavan-builder-workflow/releases/tag/TL_C2-V1-2026.01.23_20.51.28
+
+1. Download the Attached file "padavan_pack_TPLINK_TL_C2-V1.zip" file (6.64 MB) 
+
+2. Extract the "TL_C2-V1_3.4.3.9L-102-0de6f2f424.bin" file from the archive 
+
+3. Check the hash of the "TL_C2-V1_3.4.3.9L-102-0de6f2f424.bin" file - MD5: ed8002b376c4cfc5c152f01aa3a2f58b 
+(In the archive "padavan_pack_TPLINK_TL_C2-V1.zip file (6.64 MB)" have a "md5sum.txt", 
+if you need to check hash before updating your firmware, 
+you can find out the hash of the "TL_C2-V1_3.4.3.9L-102-0de6f2f424.bin" file in the bottom of the "md5sum.txt".)
+
+4. Go to the router's web interface 
+(Find out your IPv4 gateway address and enter the link to the address bar of your browser.)
+
+5. Administration > Firmware update 
+(http://192.168.0.1/Advanced_FirmwareUpgrade_Content.asp)
+(For example, if "192.168.0.1"is your IPv4 gateway address, you can copy and paste the link above, 
+if "192.168.0.1"is "not" your IPv4 gateway address, "http://192.168.0.1" is needed to be change by yourself, 
+otherwise you will not receive any responce after you enter the link to the address bar of your browser.)
+
+6. Select the TL_C2-V1_3.4.3.9L-102-0de6f2f424.bin file and click "Upload" button.
+
+7. Enjoy it!!!
