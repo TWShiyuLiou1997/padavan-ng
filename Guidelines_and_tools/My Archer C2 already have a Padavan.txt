@@ -24,10 +24,14 @@ PS: Dave is forever in our hearts and souls, in our routers and… in production
 
 + Arptables 0.0.5
 
++ Optimize WebUI for 16:9 wide screen with 1920x1080 resolution.
+
 + Patch MT7610E Driver (Anti-Disconnect & Fast Reconnect)
 (Anti-Disconnect: The original Beacon Timeout is 12 seconds, after Beacon Timeout patch applied, 
 it will be 60 seconds. 
 Fast Reconnect: Peer Disconnect Logic changed! Fast Reconnect Mode Enabled!)
+
++ HWNAT binding threshold set to 1.(HWNAT will integrate into your connection faster and significantly reduce CPU load.)
 
 + HWNAT error fixed and improve the clarity of HWNAT Start Binding and Unbinding Interfaces workflows.
 
